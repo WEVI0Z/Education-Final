@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Тест</title>
+		<meta charset="utf-8">
+		<link rel="stylesheet" type="text/css" href="styles/app.css">
+		<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' />
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="mobile-web-app-capable" content="yes">
+		<meta name="HandheldFriendly" content="true"/>
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,200&display=swap" rel="stylesheet">
+		<h1 class="zag">Тестовое задание по теме "Объект в качестве параметров"</h1>
+</head>
+	<body>
+		<div class="wrapper">
+			<main class="main">
+				<div class="quiz__head">
+					<div class="head__content" id="head">Ваша оценка:</div>
+				</div>
+				<div class="quiz__body">
+					<div class="buttons">
+						<div class="buttons__content" id="buttons">
+							<button class="button">Default button</button><br>
+							<button class="button button_wrong">Wrong answer</button><br>
+							<button class="button button_correct">Correct answer</button><br>
+							<button class="button button_passive">Unclicked button</button><br>
+						</div>
+					</div>
+
+					<div class="quiz__footer">
+						<div class="footer__content" id="pages"> 0 вопрос из 0</div>
+					</div>
+				</div>
+				
+			</main>
+		</div>
+		<script>
+			const headElem = document.getElementById("head");
+const buttonsElem = document.getElementById("buttons");
+const pagesElem = document.getElementById("pages");
+
+//Класс, который представляет сам тест
+class Quiz
+{
+	constructor(type, questions, results)
+	{
+		//Тип теста: 1 - классический тест с правильными ответами, 2 - тест без правильных ответов
+		this.type = type;
+
+		//Массив с вопросами
+		this.questions = questions;
+
+		//Массив с возможными результатами
+		this.results = results;
+
+		//Количество набранных очков
+		this.score = 0;
+
+		//Номер результата из массива
+		this.result = 0;
+
+		//Номер текущего вопроса
+		this.current = 0;
+	}
+
+	Click(index)
+	{
+		//Добавляем очки
+		let value = this.questions[this.current].Click(index);
+		this.score += value;
+
+		let correct = -1;
+
+		//Если было добавлено хотя одно очко, то считаем, что ответ верный
+		if(value >= 1)
+		{
+			correct = index;
+		}
+		else
+		{
+			//Иначе ищем, какой ответ может быть правильным
+			for(let i = 0; i < this.questions[this.current].answers.length; i++)
+			{
+				if(this.questions[this.current].answers[i].value >= 1)
+				{
+					correct = i;
+					break;
+				}
+			}
+		}
+
+		this.Next();
+
+		return correct;
+	}
+
+	//Переход к следующему вопросу
+	Next()
+	{
+		this.current++;
+		
+		if(this.current >= this.questions.length) 
+		{
+			this.End();
+		}
+	}
+
+	//Если вопросы кончились, этот метод проверит, какой результат получил пользователь
+	End()
+	{
+		for(let i = 0; i < this.results.length; i++)
+		{
+			if(this.results[i].Check(this.score))
+			{
+				this.result = i;
+			}
+		}
+	}
+} 
+
+//Класс, представляющий вопрос
+class Question 
+{
+	constructor(text, answers)
+	{
+		this.text = text; 
+		this.answers = answers; 
+	}
+
+	Click(index) 
+	{
+		return this.answers[index].value; 
+	}
+}
+
+//Класс, представляющий ответ
+class Answer 
+{
+	constructor(text, value) 
+	{
+		this.text = text; 
+		this.value = value; 
+	}
+}
+
+//Класс, представляющий результат
+class Result 
+{
+	constructor(text, value)
+	{
+		this.text = text;
+		this.value = value;
+	}
+
+	//Этот метод проверяет, достаточно ли очков набрал пользователь
+	Check(value)
+	{
+		if(this.value <= value)
+		{
+			return true;
+		}
+		else 
+		{
+			return false;
+		}
+	}
+}
+
+//Массив с результатами
+const results = 
+[
+	new Result("0",0),
+	new Result("1", 1),
+	new Result("2", 2),
+	new Result("3", 3),
+	new Result("4", 4),
+	new Result("5", 5),
+	new Result("6", 6),
+	new Result("7", 7),
+	new Result("8", 8),
+	new Result("9", 9),
+	new Result("10!", 10)
+];
+
+//Массив с вопросами
+const questions = 
+[
+	new Question("Могут ли объекты классов передаваться в методы?", 
+	[
+		new Answer("нет", 0),
+		new Answer("да", 1),
+	]),
+
+	new Question("Все члены класса в языке Java имеют", 
+	[
+		new Answer("модификаторы доступа", 1),
+		new Answer("доступ", 0),
+		new Answer("критерии", 0),
+	]),
+
+	new Question("Модификаторы доступа нужны для", 
+	[
+		new Answer("использования нанотехнологий", 0),
+		new Answer("того, чтобы задать допустимую область видимости", 1),
+		new Answer("создания программ", 0),
+	]),
+
+	new Question("В Java публичным модификатором является", 
+	[
+		new Answer("модификатор Public", 1),
+		new Answer("модификатор Private", 0),
+		new Answer("модификатор Protected", 0),
+	]),
+
+	new Question("Какой тип модификатора устанавливается по умолчанию", 
+	[
+		new Answer("модификатор public", 0),
+		new Answer("модификатор private", 0),
+		new Answer("модификатор по умолчанию ", 1),
+	]),
+
+	new Question("Какой модификатор считается закрытым?", 
+	[
+		new Answer("private", 1),
+		new Answer("public", 0),
+		new Answer("close", 0),
+	]),
+
+	new Question("Что такое инкапсуляция?", 
+	[
+		new Answer("значение переменной", 0),
+		new Answer("сокрытие поведения объекта внутри него", 1),
+		new Answer("способность функции обрабатывать данные разных типов", 0),
+	]),
+
+	new Question("Поля и методы, обозначенные модификатором protected, будут видны:", 
+	[
+		new Answer("в пределах классов, находящихся в том же пакете", 1),
+		new Answer("в любой части программы", 0),
+		new Answer("нет правильного ответа", 0),
+	]),
+
+	new Question("Что такое полиморфизм?", 
+	[
+		new Answer("сокрытие поведения объекта внутри него", 0),
+		new Answer("способность функции обрабатывать данные разных типов", 1),
+		new Answer("анализ последовательности действий", 0),
+	]),
+
+
+];
+
+//Сам тест
+const quiz = new Quiz(1, questions, results);
+
+Update();
+
+//Обновление теста
+function Update()
+{
+	//Проверяем, есть ли ещё вопросы
+	if(quiz.current < quiz.questions.length) 
+	{
+		//Если есть, меняем вопрос в заголовке
+		headElem.innerHTML = quiz.questions[quiz.current].text;
+
+		//Удаляем старые варианты ответов
+		buttonsElem.innerHTML = "";
+
+		//Создаём кнопки для новых вариантов ответов
+		for(let i = 0; i < quiz.questions[quiz.current].answers.length; i++)
+		{
+			let btn = document.createElement("button");
+			btn.className = "button";
+
+			btn.innerHTML = quiz.questions[quiz.current].answers[i].text;
+
+			btn.setAttribute("index", i);
+
+			buttonsElem.appendChild(btn);
+		}
+		
+		//Выводим номер текущего вопроса
+		pagesElem.innerHTML = (quiz.current + 1) + " / " + quiz.questions.length;
+
+		//Вызываем функцию, которая прикрепит события к новым кнопкам
+		Init();
+	}
+	else
+	{
+		//Если это конец, то выводим результат
+		buttonsElem.innerHTML = "Ваша оценка";
+		headElem.innerHTML = quiz.results[quiz.result].text;
+		pagesElem.innerHTML = "Количество правильных ответов: " + quiz.score;
+	}
+}
+
+function Init()
+{
+	//Находим все кнопки
+	let btns = document.getElementsByClassName("button");
+
+	for(let i = 0; i < btns.length; i++)
+	{
+		//Прикрепляем событие для каждой отдельной кнопки
+		//При нажатии на кнопку будет вызываться функция Click()
+		btns[i].addEventListener("click", function (e) { Click(e.target.getAttribute("index")); });
+	}
+}
+
+function Click(index) 
+{
+	//Получаем номер правильного ответа
+	let correct = quiz.Click(index);
+
+	//Находим все кнопки
+	let btns = document.getElementsByClassName("button");
+
+	//Делаем кнопки серыми
+	for(let i = 0; i < btns.length; i++)
+	{
+		btns[i].className = "button button_passive";
+	}
+
+	//Если это тест с правильными ответами, то мы подсвечиваем правильный ответ зелёным, а неправильный - красным
+	if(quiz.type == 1)
+	{
+		if(correct >= 0)
+		{
+			btns[correct].className = "button button_correct";
+		}
+
+		if(index != correct) 
+		{
+			btns[index].className = "button button_wrong";
+		} 
+	}
+	else
+	{
+		//Иначе просто подсвечиваем зелёным ответ пользователя
+		btns[index].className = "button button_correct";
+	}
+
+	//Ждём секунду и обновляем тест
+	setTimeout(Update, 1000);
+}
+		</script>
+		<style>
+		body, html
+{
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	font-size: 16px;
+	background: linear-gradient(90deg, #efd5f8, #e1ffc5);
+	color: #111;
+}
+.zag{
+	font-size: 30px;
+	text-align: center;
+	font-weight: 700;
+	padding: 15px;
+	
+}
+.wrapper
+{
+	width: 100%;
+	height: 100%;
+	display: table;
+}
+
+.main
+{
+	display: table-cell;
+	vertical-align: middle;
+	text-align: center;
+}
+
+.quiz-frame
+{
+	border: 0;
+	box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.quiz__head
+{
+	font-size: 25pt;
+	margin: 5px;
+	margin-bottom: 30px;
+}
+
+.head__content 
+{
+	text-align: center;
+}
+
+.quiz__body
+{
+	margin: 10px;
+}
+
+.quiz__footer 
+{
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	font-size:20px;
+	text-align:20px;
+	text-stroke: 2px  #FFFFFF;	
+}
+
+.footer__content 
+{
+	
+	padding: 5px;
+}
+
+.button
+{
+	border: 0.5;
+	border-radius: 30px;
+	background: #C3FBD8;
+	color: #000;
+	padding: 15px 25px;
+	width: 40%;
+	font-size: 15pt;
+	display: block;
+	margin: 2px auto;
+	cursor: pointer;
+	font-family:Georgia;
+
+
+}
+.button:hover {background-color: #98FB98}
+
+
+.button_wrong 
+{
+	background: #E52B50;
+}
+
+.button_correct
+{
+	background: #5EB97D;
+}
+
+.button_passive
+{
+	background: #F6FFF8;
+}
+
+        </style>
+	</body>
+</html>
